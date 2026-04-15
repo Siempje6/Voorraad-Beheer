@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/lib/auth'
 
 interface Product {
   id: string
@@ -18,6 +19,7 @@ export default function Topbar() {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const router = useRouter()
+  const { user, profiel, uitloggen } = useAuth()
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -124,17 +126,40 @@ export default function Topbar() {
         )}
       </div>
 
+      {/* Rechts: gebruiker of inlogknop */}
       <div className="ml-auto flex items-center gap-3">
-        <div
-          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-[#b7e4c7]"
-          style={{ background: 'var(--accent)' }}
-        >
-          SV
-        </div>
-        <div>
-          <p className="text-xs font-medium text-gray-800 leading-tight">Siem</p>
-          <p className="text-[10px] text-gray-400 leading-tight">Admin</p>
-        </div>
+        {user ? (
+          <>
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-[#b7e4c7] cursor-pointer"
+              style={{ background: 'var(--accent)' }}
+            >
+              {user.email?.[0].toUpperCase()}
+            </div>
+            <div>
+              <p className="text-xs font-medium text-gray-800 leading-tight truncate max-w-[120px]">
+                {user.email}
+              </p>
+              <p className="text-[10px] text-gray-400 leading-tight capitalize">
+                {profiel?.rol ?? 'medewerker'}
+              </p>
+            </div>
+            <button
+              onClick={uitloggen}
+              className="text-[10px] text-gray-400 hover:text-gray-600 transition-colors px-2 py-1 rounded-lg hover:bg-gray-100"
+            >
+              Uitloggen
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => router.push('/inloggen')}
+            className="text-xs font-medium px-3 py-1.5 rounded-lg text-[#b7e4c7]"
+            style={{ background: 'var(--accent)' }}
+          >
+            Inloggen
+          </button>
+        )}
       </div>
     </header>
   )
